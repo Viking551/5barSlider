@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5Bar - Dynamische Frontpage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <style>
+        :root {
+            --primary-color: #171717;
+            --accent-color: #DB0A40;
+            --text-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: clamp(10px, 3vw, 20px);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        .media-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--primary-color);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .media-container iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            min-width: 100%;
+            min-height: 100%;
+            pointer-events: none;
+        }
+
+        .slide img {
+            width: auto;
+            height: auto;
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            margin: auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .slide-text {
+            position: absolute;
+            bottom: clamp(10%, 15vh, 25%);
+            left: clamp(15px, 5vw, 50px);
+            max-width: min(90%, 600px);
+            padding: clamp(15px, 3vw, 30px);
+            background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            border-left: 4px solid var(--accent-color);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.6s ease;
+            z-index: 100;
+        }
+
+        .slide.active .slide-text {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .slide-text h2 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: clamp(10px, 2vw, 15px);
+            line-height: 1.2;
+        }
+
+        .slide-text p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .instagram-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .instagram-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+        }
+
+        .instagram-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fff"%3E%3Cpath d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"%2F%3E%3C%2Fsvg%3E') no-repeat center;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .dots {
+            position: absolute;
+            right: clamp(10px, 3vw, 5%);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 1.5vw, 15px);
+            z-index: 1000;
+        }
+
+        .dot {
+            width: clamp(8px, 1.5vw, 12px);
+            height: clamp(8px, 1.5vw, 12px);
+            background: rgba(255,255,255,0.3);
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        .sound-button {
+            position: absolute;
+            bottom: clamp(20px, 5vh, 5%);
+            right: clamp(20px, 5vw, 5%);
+            width: clamp(40px, 6vw, 50px);
+            height: clamp(40px, 6vw, 50px);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(16px, 2vw, 24px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sound-button:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: clamp(2px, 0.5vh, 4px);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-color);
+            transition: width linear;
+        }
+
+        @media (max-width: 768px) {
+            .slide-text {
+                bottom: 20%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                text-align: center;
+                border-left: none;
+                border-bottom: 4px solid var(--accent-color);
+            }
+
+            .dots {
+                right: 10px;
+            }
+
+            .sound-button {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide-text h2 {
+                font-size: 1.5rem;
+            }
+
+            .slide-text p {
+                font-size: 1rem;
+            }
+
+            .dots {
+                right: 5px;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .slide-text {
+                bottom: 10%;
+                padding: 10px;
+            }
+
+            .slide-text h2 {
+                font-size: 1.2rem;
+                margin-bottom: 5px;
+            }
+
+            .slide-text p {
+                font-size: 0.9rem;
+            }
+
+            .dots {
+                gap: 8px;
+            }
+
+            .sound-button {
+                bottom: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">5Bar</div>
+    </header>
+
+    <div class="slider-container">
+        <div class="slider" id="slider">
+            <div class="slide active">
+                <div class="media-container">
+                    <iframe
+                        id="video"
+                        src="https://www.youtube.com/embed/4-8NOLyPZa8?enablejsapi=1&controls=0&showinfo=0&rel=0&autoplay=1&loop=0&playlist=4-8NOLyPZa8&mute=1&playsinline=1"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+                <div class="slide-text">
+                    <h2>Erlebe unsere Abenteuer</h2>
+                    <p>Ein Blick hinter die Kulissen.</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <div class="media-container">
+                    <img src="bild1.jpg" alt="Bild 1">
+                </div>
+                <div class="slide-text">
+                    <h2>Spannende Inhalte</h2>
+                    <p>Erlebe das Gefühl bei 5Bar.</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <div class="media-container">
+                    <img src="bild2.jpg" alt="Bild 2">
+                </div>
+                <div class="slide-text">
+                    <h2>Storys übers Tauchen</h2>
+                    <p>Entdecke unsere neuesten Highlights.</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <div class="media-container">
+                    <img src="bild3.jpg" alt="Schweizer Tauchplätze">
+                </div>
+                <div class="slide-text">
+                    <h2>Schweizer Tauchplätze</h2>
+                    <p>Entdecke mit uns gemeinsam unsere Schweizer Tauchplätze</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <div class="media-container">
+                    <iframe
+                        id="video2"
+                        src="https://www.youtube.com/embed/Zc07nkuU2S8?enablejsapi=1&controls=0&showinfo=0&rel=0&autoplay=1&loop=0&playlist=Zc07nkuU2S8&mute=1&playsinline=1"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+                <div class="slide-text">
+                    <h2>Fashion & Accessoires</h2>
+                    <p>Inspired by the world beyond the surface</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <div class="media-container" style="background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);">
+                    <div class="slide-text" style="position: relative; text-align: center; border: none; background: none; transform: none; opacity: 1;">
+                        <h2>Folge uns auf Instagram</h2>
+                        <p>Entdecke noch mehr spannende Tauchgeschichten und bleibe mit uns in Verbindung!</p>
+                        <a href="https://www.instagram.com/dive_switzerland/" target="_blank" class="instagram-button">
+                            <span class="instagram-icon"></span>
+                            @dive_switzerland
+                        </a>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dots" id="dots"></div>
+        <button class="sound-button" id="soundButton">🔇</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const slider = document.getElementById('slider');
+        const dotsContainer = document.getElementById('dots');
+        const soundButton = document.getElementById('soundButton');
+        let currentIndex = 0;
+        let player1, player2;
+        let autoSlideTimeout;
+
+        function onYouTubeIframeAPIReady() {
+            player1 = new YT.Player('video', {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+
+            player2 = new YT.Player('video2', {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            event.target.mute();
+            updateSlides();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                // Wenn das Video endet, zum nächsten Slide wechseln
+                currentIndex = (currentIndex + 1) % slides.length;
+                updateSlides();
+                startAutoSlide();
+            }
+        }
+
+        slides.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateSlides() {
+            clearTimeout(autoSlideTimeout);
+
+            slides.forEach((slide, index) => {
+                slide.style.transform = `translateX(${(index - currentIndex) * 100}%)`;
+                slide.classList.toggle('active', index === currentIndex);
+
+                const progress = slide.querySelector('.progress');
+                if (index === currentIndex) {
+                    let duration = 5; // Standard-Dauer für Bild-Slides
+
+                    // Setzen Sie die Dauer für Video-Slides
+                    if (index === 0 && player1) {
+                        duration = player1.getDuration();
+                        player1.playVideo();
+                        if (player2) player2.pauseVideo();
+                        soundButton.style.display = 'flex';
+                    } else if (index === 4 && player2) {
+                        duration = player2.getDuration();
+                        if (player1) player1.pauseVideo();
+                        player2.playVideo();
+                        soundButton.style.display = 'flex';
+                    } else {
+                        if (player1) player1.pauseVideo();
+                        if (player2) player2.pauseVideo();
+                        soundButton.style.display = 'none';
+                    }
+
+                    progress.style.transition = `width ${duration}s linear`;
+                    progress.style.width = '100%';
+                } else {
+                    progress.style.transition = 'none';
+                    progress.style.width = '0%';
+                }
+            });
+
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+
+            startAutoSlide();
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateSlides();
+        }
+
+        function startAutoSlide() {
+            clearTimeout(autoSlideTimeout);
+
+            let duration = 5000; // Standard-Dauer für Bild-Slides
+
+            // Wenn es ein Video-Slide ist, nicht automatisch weiterschalten
+            if (currentIndex === 0 || currentIndex === 4) {
+                return; // Video-Slides werden durch onPlayerStateChange gesteuert
+            }
+
+            autoSlideTimeout = setTimeout(() => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                updateSlides();
+            }, duration);
+        }
+
+        soundButton.addEventListener('click', () => {
+            if (currentIndex === 0 && player1) {
+                const isMuted = player1.isMuted();
+                if (isMuted) {
+                    player1.unMute();
+                    soundButton.textContent = '🔊';
+                } else {
+                    player1.mute();
+                    soundButton.textContent = '🔇';
+                }
+            } else if (currentIndex === 4 && player2) {
+                const isMuted = player2.isMuted();
+                if (isMuted) {
+                    player2.unMute();
+                    soundButton.textContent = '🔊';
+                } else {
+                    player2.mute();
+                    soundButton.textContent = '🔇';
+                }
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        slider.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        slider.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentIndex < slides.length - 1) {
+                    goToSlide(currentIndex + 1);
+                } else if (diff < 0 && currentIndex > 0) {
+                    goToSlide(currentIndex - 1);
+                }
+            }
+        }
+
+        startAutoSlide();
+    </script>
+</body>
+</html>
